@@ -1,0 +1,10 @@
+interfaces {
+    {{ port }}.0 {
+        family ethernet-switching {
+            vlan {
+                replace:
+                members {{ vlan }};
+            }
+        }
+    }
+}
