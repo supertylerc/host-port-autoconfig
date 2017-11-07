@@ -1,37 +1,15 @@
 function setup_yum() {
   sudo yum -y -q update
-  sudo rpm --import https://repo.saltstack.com/yum/redhat/7/x86_64/archive/2017.7.1/SALTSTACK-GPG-KEY.pub
-
-  cat <<'EOF' > /etc/yum.repos.d/saltstack.repo
-[saltstack-repo]
-name=SaltStack repo for RHEL/CentOS $releasever
-baseurl=https://repo.saltstack.com/yum/redhat/$releasever/$basearch/archive/2017.7.1
-enabled=1
-gpgcheck=1
-gpgkey=https://repo.saltstack.com/yum/redhat/$releasever/$basearch/archive/2017.7.1/SALTSTACK-GPG-KEY.pub 
-EOF
-
-  sudo yum -y -q clean expire-cache
 }
 
 function install_minion() {
-  sudo yum -y -q install salt-minion
-
   sudo cp /vagrant/conf/minion /etc/salt
-
+  hostname > /etc/salt/minion_id
   sudo systemctl restart salt-minion
   sudo systemctl enable salt-minion
 }
 
 function install_master() {
-  sudo yum -y -q install salt-master git python-setuptools
-  sudo easy_install pip
-  sudo pip install GitPython
-
-  sudo mkdir -p /srv/salt/
-  sudo mkdir -p /srv/pillar/
-  sudo mkdir -p /etc/salt/master.d/
-
   sudo cp /vagrant/conf/master /etc/salt/master
   sudo cp /vagrant/conf/master.d/reactor.conf /etc/salt/master.d/reactor.conf
   sudo cp /vagrant/conf/master.d/gitfs.conf /etc/salt/master.d/gitfs.conf
@@ -50,6 +28,7 @@ function setup_master() {
   sudo hostnamectl set-hostname master.tylerc.me
 
   setup_yum
+  setup_iptables
   install_master
   install_minion
 }
@@ -63,6 +42,11 @@ function setup_minion() {
 
   setup_yum
   install_minion
+}
+
+function setup_iptables() {
+  firewall-cmd --permanent --zone=public --add-port=4505-4506/tcp
+  firewall-cmd --reload
 }
 
 function setup_rtr() {
@@ -80,9 +64,8 @@ function setup_rtr() {
   vagrant ssh rtr -- -lroot "cli -c 'configure; set protocols lldp interface all; commit and-quit'"
 }
 
-function bootstrap() {
-  vagrant ssh salt_master -c 'sudo salt minion.tylerc.me state.apply epel' > /dev/null
-  vagrant ssh salt_master -c 'sudo salt minion.tylerc.me state.apply lldp' > /dev/null
+function clean_keys() {
+  vagrant ssh salt_master -c "sudo salt-key -y -d 10.0.2.15"
 }
 
 # main
@@ -92,8 +75,8 @@ elif [[ "${1}" == "minion" ]]; then
   setup_minion
 elif [[ "${1}" == "rtr" ]]; then
   setup_rtr
-elif [[ "${1}" == "bootstrap" ]]; then
-  bootstrap
+elif [[ "${1}" == "clean" ]]; then
+  clean_keys
 else
   echo "lolno"
 fi
