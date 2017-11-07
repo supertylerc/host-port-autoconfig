@@ -22,7 +22,7 @@ end
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.define 'salt_master' do |smaster|
-    smaster.vm.box = 'centos/7'
+    smaster.vm.box = 'supertylerc/centos-7-salt'
     smaster.vm.network 'private_network', ip: '192.168.18.100', intnet: 'mgmt'
     smaster.vm.hostname = 'master.tylerc.me'
     smaster.vm.provider :virtualbox do |vb|
@@ -36,7 +36,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # CentOS Minion
   config.vm.define 'salt_minion' do |sminion|
-    sminion.vm.box = 'centos/7'
+    sminion.vm.box = 'supertylerc/centos-7-salt'
     sminion.vm.network 'private_network', ip: '192.168.18.51', intnet: 'mgmt'
     sminion.vm.network 'private_network', ip: '192.168.69.51', intnet: 'cloud'
     sminion.vm.hostname = 'minion.tylerc.me'
@@ -77,8 +77,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.trigger.after :up, :vm => ['rtr'] do
     run 'scripts/install.sh rtr'
-  end
-  config.trigger.after :up, :vm => ['salt_minion'] do
-    run 'scripts/install.sh bootstrap'
+    run 'scripts/install.sh clean'
   end
 end
