@@ -29,7 +29,8 @@ Finally, you should try changing to environment from `production` to
 change `environment` from `production` to `development`.  Then, refresh
 pillar data with `sudo salt \* saltutil.refresh_pillar`, then apply the
 states to the minion again with `sudo salt mi\* state.apply`.  Once the
-state finishes, check `rtr` again and you should that the VLAN is now `666`.
+state finishes, check `rtr` again and you should see that the VLAN is now
+`666`.
 
 # Author
 
