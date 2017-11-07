@@ -2,7 +2,7 @@ fake_provisioning_step:
   cmd.run:
     - name: 'echo "hello"'
 
-wait_for_proxy:
+simulate_provisioning_time:
   cmd.run:
     - name: sleep 90
 
