@@ -2,6 +2,10 @@
 
 This example uses Vagrant to bring up a Salt Master, Salt Minion, and a router.
 
+> This `Vagrantfile` uses a custom Vagrant box.  It is built with Packer.
+> You are encouraged to read the code that builds the box.
+> It can be viewed [here](https://github.com/supertylerc/packer-salt).
+
 The Salt Minion is a server that is going to be provisioned using a dummy
 provisioning state in Salt.  The entire purpose of that state is to send
 a message to the Salt Master where a reactor is configured that will configure
